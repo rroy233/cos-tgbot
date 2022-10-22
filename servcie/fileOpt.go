@@ -1,6 +1,6 @@
 package servcie
 
-import "tgUploader/config"
+import "cosTgBot/config"
 
 func GetFileCdnUrl(fileKey string) string {
 	if config.Get().Cos.CdnUrlDomain != "" {

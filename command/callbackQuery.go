@@ -1,13 +1,13 @@
 package command
 
 import (
+	"cosTgBot/servcie"
+	"cosTgBot/util"
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"log"
 	"regexp"
 	"strings"
-	"tgUploader/servcie"
-	"tgUploader/util"
 )
 
 func DelQuery(update *tgbotapi.Update) {
