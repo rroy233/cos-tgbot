@@ -1,0 +1,11 @@
+{
+  "bot_token": "",
+  "admin_uid": [114514],
+  "cos": {
+    "BucketURL": "https://xxxxx.cos.ap-shanghai.myqcloud.com",
+    "ServiceURL": "https://cos.ap-shanghai.myqcloud.com",
+    "SecretID": "",
+    "SecretKey": "",
+    "cdnUrlDomain": "https://xxxxx.xxxx.com"
+  }
+}
