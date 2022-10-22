@@ -1,4 +1,4 @@
-module tgUploader
+module cosTgBot
 
 go 1.17
 

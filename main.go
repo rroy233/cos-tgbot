@@ -2,16 +2,16 @@ package main
 
 import (
 	"context"
+	"cosTgBot/command"
+	"cosTgBot/config"
+	"cosTgBot/servcie"
+	"cosTgBot/util"
 	"encoding/json"
 	"flag"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"log"
 	"os"
 	"os/signal"
-	"tgUploader/command"
-	"tgUploader/config"
-	"tgUploader/servcie"
-	"tgUploader/util"
 )
 
 const WorkerNum = 1
@@ -19,6 +19,7 @@ const WorkerNum = 1
 var bot *tgbotapi.BotAPI
 
 func main() {
+	log.Println("正在初始化")
 	var debug *bool
 	debug = flag.Bool("debug", false, "debug mode")
 	flag.Parse()
@@ -50,6 +51,7 @@ func main() {
 		go worker(stopCtx, updates, cancelCh)
 	}
 
+	log.Println("初始化成功")
 	sigCh := make(chan os.Signal, 1)
 	signal.Notify(sigCh, os.Interrupt, os.Kill)
 	<-sigCh

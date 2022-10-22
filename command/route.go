@@ -1,10 +1,10 @@
 package command
 
 import (
+	"cosTgBot/config"
+	"cosTgBot/util"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"log"
-	"tgUploader/config"
-	"tgUploader/util"
 )
 
 var bot *tgbotapi.BotAPI
@@ -45,8 +45,7 @@ func Handle(update tgbotapi.Update) {
 
 	}
 
-	//判断是否为callback_query
-	if update.CallbackQuery != nil {
+	if update.CallbackQuery != nil { //判断是否为callback_query
 		if config.IsAdmin(update.CallbackQuery.From.ID) == false {
 			util.SendPlainText(&update, "您不是管理员")
 			return

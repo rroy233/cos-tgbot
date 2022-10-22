@@ -2,11 +2,11 @@ package servcie
 
 import (
 	"context"
+	"cosTgBot/config"
+	"cosTgBot/util"
 	"github.com/tencentyun/cos-go-sdk-v5"
 	"net/http"
 	"net/url"
-	"tgUploader/config"
-	"tgUploader/util"
 )
 
 var cp *util.LocalCipher
