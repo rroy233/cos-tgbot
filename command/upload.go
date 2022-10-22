@@ -1,6 +1,7 @@
 package command
 
 import (
+	"cosTgBot/config"
 	"cosTgBot/servcie"
 	"cosTgBot/util"
 	"fmt"
@@ -103,10 +104,15 @@ func UploadCommand(update *tgbotapi.Update, path string) {
 			tgbotapi.NewInlineKeyboardButtonData("删除", "del"),
 		),
 	)
+	cdnNoti := ""
+	if config.Get().Cos.CdnUrlDomain != "" {
+		cdnNoti = "(CDN)"
+	}
 	err = util.EditMessageWithMarkUP(&msg, fmt.Sprintf(
-		"【上传成功】\nObjectKey:【%s】 \nKey:【%s】\n下载地址(CDN)：\n%s ",
+		"【上传成功】\nObjectKey:【%s】 \nKey:【%s】\n下载地址%s：\n%s ",
 		objKey,
 		fmt.Sprintf("%d#%s", r, sign),
+		cdnNoti,
 		servcie.GetFileCdnUrl(objKey),
 	),
 		&keyboard)
