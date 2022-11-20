@@ -60,6 +60,10 @@ func DelQuery(update *tgbotapi.Update) {
 func uploadQuery(update *tgbotapi.Update, path string) {
 
 	UploadCommand(update.CallbackQuery.Message.ReplyToMessage, path)
+	
+	if err := util.CallBack(update.CallbackQuery.ID, "成功"); err != nil {
+		log.Println("[command][callbackQuery.uploadQuery]default发送CallBack失败", err)
+	}
 
 	return
 }
@@ -69,7 +73,7 @@ func replyToFiles(update *tgbotapi.Update) {
 	sMsg.ReplyToMessageID = update.Message.MessageID
 	msg, err := bot.Send(sMsg)
 	if err != nil {
-		log.Println("[util][upload.replyToFiles]发送正在处理信息失败:", err)
+		log.Println("[util][callbackQuery.replyToFiles]发送正在处理信息失败:", err)
 		return
 	}
 
@@ -86,7 +90,7 @@ func replyToFiles(update *tgbotapi.Update) {
 
 	err = util.EditMessageWithMarkUP(&msg, "请选择上传至哪个目录喵~", &keyboard)
 	if err != nil {
-		log.Println("[util][upload.replyToFiles]EditMessageWithMarkUP:", err)
+		log.Println("[util][callbackQuery.replyToFiles]EditMessageWithMarkUP:", err)
 		util.EditMessageText(&msg, "异常")
 		return
 	}
