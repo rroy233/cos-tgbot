@@ -56,3 +56,38 @@ func DelQuery(update *tgbotapi.Update) {
 
 	return
 }
+
+func uploadQuery(update *tgbotapi.Update, path string) {
+
+	UploadCommand(update.CallbackQuery.Message.ReplyToMessage, path)
+
+	return
+}
+
+func replyToFiles(update *tgbotapi.Update) {
+	sMsg := tgbotapi.NewMessage(update.Message.Chat.ID, "正在处理...")
+	sMsg.ReplyToMessageID = update.Message.MessageID
+	msg, err := bot.Send(sMsg)
+	if err != nil {
+		log.Println("[util][upload.replyToFiles]发送正在处理信息失败:", err)
+		return
+	}
+
+	keyboard := tgbotapi.NewInlineKeyboardMarkup(
+		tgbotapi.NewInlineKeyboardRow(
+			tgbotapi.NewInlineKeyboardButtonData("上传到Upload", "UPLOAD_TO_UPLOAD"),
+			tgbotapi.NewInlineKeyboardButtonData("上传到Img", "UPLOAD_TO_IMG"),
+		),
+		tgbotapi.NewInlineKeyboardRow(
+			tgbotapi.NewInlineKeyboardButtonData("上传到Css", "UPLOAD_TO_CSS"),
+			tgbotapi.NewInlineKeyboardButtonData("上传到Js", "UPLOAD_TO_JS"),
+		),
+	)
+
+	err = util.EditMessageWithMarkUP(&msg, "请选择上传至哪个目录喵~", &keyboard)
+	if err != nil {
+		log.Println("[util][upload.replyToFiles]EditMessageWithMarkUP:", err)
+		util.EditMessageText(&msg, "异常")
+		return
+	}
+}

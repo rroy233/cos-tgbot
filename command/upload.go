@@ -8,6 +8,7 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"log"
 	"os"
+	"strconv"
 	"time"
 )
 
@@ -23,28 +24,33 @@ const (
 	CallBackQueryDel uint8 = '0'
 )
 
-func UploadCommand(update *tgbotapi.Update, path string) {
+func UploadCommand(message *tgbotapi.Message, path string) {
 	file := new(File)
 	if path == "/upload/" {
-		file.SavePath = fmt.Sprintf("/upload/%d/%d/%d/",
+		file.SavePath = fmt.Sprintf("/upload/%d/%d/%d/%s/",
 			time.Now().Year(),
 			time.Now().Month(),
 			time.Now().Day(),
+			util.Sha256Hex([]byte(strconv.FormatInt(time.Now().UnixMilli(), 10)))[:6],
 		)
 	} else {
 		file.SavePath = path
 	}
 
-	msg, err := bot.Send(tgbotapi.NewMessage(update.Message.Chat.ID, "正在处理..."))
+	sMsg := tgbotapi.NewMessage(message.Chat.ID, "正在处理...")
+	sMsg.ReplyToMessageID = message.MessageID
+	msg, err := bot.Send(sMsg)
 	if err != nil {
 		log.Println("[util][upload.UploadCommand]发送正在处理信息失败:", err)
 		return
 	}
 
-	message := update.Message.ReplyToMessage
 	if message == nil {
-		util.EditMessageText(&msg, fmt.Sprintf("请给文件回复 /%s ", update.Message.Command()))
+		util.EditMessageText(&msg, fmt.Sprintf("请给文件回复 /%s ", message.Command()))
 		return
+	}
+	if message.ReplyToMessage != nil {
+		message = message.ReplyToMessage
 	}
 	if message.Photo != nil && len(message.Photo) != 0 {
 		file.MimeType = "image/jpeg"
@@ -104,16 +110,16 @@ func UploadCommand(update *tgbotapi.Update, path string) {
 			tgbotapi.NewInlineKeyboardButtonData("删除", "del"),
 		),
 	)
-	cdnNoti := ""
+	cdnUrl := ""
 	if config.Get().Cos.CdnUrlDomain != "" {
-		cdnNoti = "(CDN)"
+		cdnUrl = "\n下载地址(CDN):\n" + servcie.GetFileCdnUrl(objKey)
 	}
 	err = util.EditMessageWithMarkUP(&msg, fmt.Sprintf(
-		"【上传成功】\nObjectKey:【%s】 \nKey:【%s】\n下载地址%s：\n%s ",
+		"【上传成功】\nObjectKey:【%s】 \nKey:【%s】\n下载地址：\n%s%s",
 		objKey,
 		fmt.Sprintf("%d#%s", r, sign),
-		cdnNoti,
-		servcie.GetFileCdnUrl(objKey),
+		servcie.GetFileUrl(objKey),
+		cdnUrl,
 	),
 		&keyboard)
 	if err != nil {

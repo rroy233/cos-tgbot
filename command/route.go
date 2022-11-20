@@ -30,19 +30,28 @@ func Handle(update tgbotapi.Update) {
 			case "help":
 				HelpCommand(&update)
 			case "upload":
-				UploadCommand(&update, "/upload/")
+				UploadCommand(update.Message, "/upload/")
 			case "css":
-				UploadCommand(&update, "/css/")
+				UploadCommand(update.Message, "/css/")
 			case "js":
-				UploadCommand(&update, "/js/")
+				UploadCommand(update.Message, "/js/")
 			case "img":
-				UploadCommand(&update, "/img/")
+				UploadCommand(update.Message, "/img/")
 			default:
 				util.SendPlainText(&update, "命令不存在")
 				return
 			}
 		}
 
+	}
+
+	//是否为文件
+	if update.Message != nil {
+		if update.Message.Document != nil || len(update.Message.Photo) != 0 {
+			//发的文件或者图片
+			replyToFiles(&update)
+			return
+		}
 	}
 
 	if update.CallbackQuery != nil { //判断是否为callback_query
@@ -61,6 +70,14 @@ func Handle(update tgbotapi.Update) {
 		switch update.CallbackQuery.Data {
 		case "del":
 			DelQuery(&update)
+		case "UPLOAD_TO_UPLOAD":
+			uploadQuery(&update, "/upload/")
+		case "UPLOAD_TO_IMG":
+			uploadQuery(&update, "/img/")
+		case "UPLOAD_TO_JS":
+			uploadQuery(&update, "/js/")
+		case "UPLOAD_TO_CSS":
+			uploadQuery(&update, "/css/")
 		default:
 			if err := util.CallBackWithAlert(update.CallbackQuery.ID, "操作不存在"); err != nil {
 				log.Println("[command][route.Handle]default发送CallBackWithAlert失败", err)
