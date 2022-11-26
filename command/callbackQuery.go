@@ -5,7 +5,7 @@ import (
 	"cosTgBot/util"
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"log"
+	"github.com/rroy233/logger"
 	"regexp"
 	"strings"
 )
@@ -14,10 +14,10 @@ func DelQuery(update *tgbotapi.Update) {
 	text := update.CallbackQuery.Message.Text
 	objKey, err := util.MatchSingle(regexp.MustCompile(`ObjectKey:【(.+?)】`), text)
 	Key, err := util.MatchSingle(regexp.MustCompile(`\nKey:【(.+?)】\n`), text)
-	log.Printf("objKey:%s   Key:%s", objKey, Key)
+	logger.Info.Printf("objKey:%s   Key:%s", objKey, Key)
 	if err != nil {
 		if err := util.CallBackWithAlert(update.CallbackQuery.ID, "objKey和Sign解析失败"); err != nil {
-			log.Println("[command][callbackQuery.DelQuery]objKey和Sign解析失败发送失败", err)
+			logger.Info.Println("[command][callbackQuery.DelQuery]objKey和Sign解析失败发送失败", err)
 		}
 		return
 	}
@@ -25,7 +25,7 @@ func DelQuery(update *tgbotapi.Update) {
 	data := strings.Split(Key, "#")
 	if len(data) != 2 {
 		if err := util.CallBackWithAlert(update.CallbackQuery.ID, "请求参数无效"); err != nil {
-			log.Println("[command][callbackQuery.DelQuery]default发送CallBackWithAlert失败", err)
+			logger.Info.Println("[command][callbackQuery.DelQuery]default发送CallBackWithAlert失败", err)
 		}
 		return
 	}
@@ -33,7 +33,7 @@ func DelQuery(update *tgbotapi.Update) {
 	sign := util.Sha256Hex([]byte(fmt.Sprintf("del#%s#%s", objKey, data[0])))[:6]
 	if data[1] != sign {
 		if err := util.CallBackWithAlert(update.CallbackQuery.ID, "请求参数签名无效"); err != nil {
-			log.Println("[command][callbackQuery.DelQuery]default发送CallBackWithAlert失败", err)
+			logger.Info.Println("[command][callbackQuery.DelQuery]default发送CallBackWithAlert失败", err)
 		}
 		return
 	}
@@ -42,14 +42,14 @@ func DelQuery(update *tgbotapi.Update) {
 		err := servcie.CosFileDel(objKey)
 		if err != nil {
 			if err := util.CallBackWithAlert(update.CallbackQuery.ID, "删除失败"); err != nil {
-				log.Println("[command][callbackQuery.DelQuery]default发送CallBackWithAlert失败", err)
+				logger.Info.Println("[command][callbackQuery.DelQuery]default发送CallBackWithAlert失败", err)
 			}
 			return
 		}
 	}
 
 	if err := util.CallBack(update.CallbackQuery.ID, "成功"); err != nil {
-		log.Println("[command][callbackQuery.DelQuery]default发送CallBack失败", err)
+		logger.Info.Println("[command][callbackQuery.DelQuery]default发送CallBack失败", err)
 	}
 
 	util.EditMessageText(update.CallbackQuery.Message, "文件已删除")
@@ -60,9 +60,9 @@ func DelQuery(update *tgbotapi.Update) {
 func uploadQuery(update *tgbotapi.Update, path string) {
 
 	UploadCommand(update.CallbackQuery.Message.ReplyToMessage, path)
-	
+
 	if err := util.CallBack(update.CallbackQuery.ID, "成功"); err != nil {
-		log.Println("[command][callbackQuery.uploadQuery]default发送CallBack失败", err)
+		logger.Info.Println("[command][callbackQuery.uploadQuery]default发送CallBack失败", err)
 	}
 
 	return
@@ -73,7 +73,7 @@ func replyToFiles(update *tgbotapi.Update) {
 	sMsg.ReplyToMessageID = update.Message.MessageID
 	msg, err := bot.Send(sMsg)
 	if err != nil {
-		log.Println("[util][callbackQuery.replyToFiles]发送正在处理信息失败:", err)
+		logger.Info.Println("[util][callbackQuery.replyToFiles]发送正在处理信息失败:", err)
 		return
 	}
 
@@ -90,7 +90,7 @@ func replyToFiles(update *tgbotapi.Update) {
 
 	err = util.EditMessageWithMarkUP(&msg, "请选择上传至哪个目录喵~", &keyboard)
 	if err != nil {
-		log.Println("[util][callbackQuery.replyToFiles]EditMessageWithMarkUP:", err)
+		logger.Info.Println("[util][callbackQuery.replyToFiles]EditMessageWithMarkUP:", err)
 		util.EditMessageText(&msg, "异常")
 		return
 	}

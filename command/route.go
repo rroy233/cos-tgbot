@@ -4,7 +4,7 @@ import (
 	"cosTgBot/config"
 	"cosTgBot/util"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"log"
+	"github.com/rroy233/logger"
 )
 
 var bot *tgbotapi.BotAPI
@@ -63,7 +63,7 @@ func Handle(update tgbotapi.Update) {
 		data := update.CallbackQuery.Data
 		if data == "" {
 			if err := util.CallBackWithAlert(update.CallbackQuery.ID, "请求无效"); err != nil {
-				log.Println("[command][route.Handle]default发送CallBackWithAlert失败", err)
+				logger.Info.Println("[command][route.Handle]default发送CallBackWithAlert失败", err)
 			}
 			return
 		}
@@ -80,7 +80,7 @@ func Handle(update tgbotapi.Update) {
 			uploadQuery(&update, "/css/")
 		default:
 			if err := util.CallBackWithAlert(update.CallbackQuery.ID, "操作不存在"); err != nil {
-				log.Println("[command][route.Handle]default发送CallBackWithAlert失败", err)
+				logger.Info.Println("[command][route.Handle]default发送CallBackWithAlert失败", err)
 			}
 			return
 		}

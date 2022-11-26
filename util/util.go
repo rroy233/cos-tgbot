@@ -5,8 +5,8 @@ import (
 	"errors"
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/rroy233/logger"
 	"io/ioutil"
-	"log"
 	"math/rand"
 	"net/http"
 	"os"
@@ -26,7 +26,7 @@ func InitUtil(b *tgbotapi.BotAPI) {
 			//创建目录storage
 			err = os.Mkdir("./storage", 0755)
 			if err != nil {
-				log.Panicln(err)
+				logger.Error.Fatalln(err)
 			}
 		}
 	}
@@ -47,7 +47,7 @@ func SendPlainText(update *tgbotapi.Update, text string) {
 		_, err = bot.Send(msg)
 	}
 	if err != nil {
-		log.Println("[util][SendPlainText]" + err.Error())
+		logger.Info.Println("[util][SendPlainText]" + err.Error())
 	}
 }
 
@@ -94,7 +94,7 @@ func DownloadFile(fileUrl string) (string, error) {
 func EditMessageText(msg *tgbotapi.Message, newText string) {
 	edit := tgbotapi.NewEditMessageText(msg.Chat.ID, msg.MessageID, newText)
 	if _, err := bot.Send(edit); err != nil {
-		log.Println("[util][EditMessageText]", err)
+		logger.Info.Println("[util][EditMessageText]", err)
 	}
 }
 
@@ -102,7 +102,7 @@ func EditMessageWithMarkUP(msg *tgbotapi.Message, newText string, keyboard *tgbo
 	edit := tgbotapi.NewEditMessageTextAndMarkup(msg.Chat.ID, msg.MessageID, newText, *keyboard)
 	_, err := bot.Send(edit)
 	if err != nil {
-		log.Println("[util][EditMessageText]", err)
+		logger.Info.Println("[util][EditMessageText]", err)
 	}
 	return err
 }

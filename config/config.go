@@ -16,6 +16,12 @@ type ConfigStruct struct {
 		SecretKey    string `json:"SecretKey"`
 		CdnUrlDomain string `json:"cdnUrlDomain"`
 	} `json:"cos"`
+	Logger struct {
+		Enabled   bool   `json:"enabled"`
+		Report    bool   `json:"report"`
+		ReportUrl string `json:"reportUrl"`
+		QueryKey  string `json:"queryKey"`
+	} `json:"logger"`
 }
 
 var config *ConfigStruct

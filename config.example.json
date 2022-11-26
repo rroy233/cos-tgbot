@@ -7,5 +7,11 @@
     "SecretID": "",
     "SecretKey": "",
     "cdnUrlDomain": "https://xxxxx.xxxx.com"
+  },
+  "logger": {
+    "enabled": true,
+    "report": false,
+    "reportUrl": "",
+    "queryKey": ""
   }
 }

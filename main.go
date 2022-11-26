@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"flag"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/rroy233/logger"
 	"log"
 	"os"
 	"os/signal"
@@ -27,10 +28,21 @@ func main() {
 	//加载配置文件
 	config.LoadConfig()
 
+	//日志服务
+	logger.New(&logger.Config{
+		StdOutput:      true,
+		StoreLocalFile: config.Get().Logger.Enabled,
+		StoreRemote:    config.Get().Logger.Report,
+		RemoteConfig: logger.RemoteConfigStruct{
+			RequestUrl: config.Get().Logger.ReportUrl,
+			QueryKey:   config.Get().Logger.QueryKey,
+		},
+	})
+
 	var err error
 	bot, err = tgbotapi.NewBotAPI(config.Get().BotToken)
 	if err != nil {
-		log.Panic(err)
+		logger.FATAL.Fatalln(err)
 	}
 
 	command.InitCommand(bot)
@@ -39,7 +51,7 @@ func main() {
 
 	bot.Debug = *debug
 
-	log.Printf("Authorized on account %s", bot.Self.UserName)
+	logger.Info.Printf("Authorized on account %s", bot.Self.UserName)
 
 	u := tgbotapi.NewUpdate(0)
 	u.Timeout = 60
@@ -51,15 +63,15 @@ func main() {
 		go worker(stopCtx, updates, cancelCh)
 	}
 
-	log.Println("初始化成功")
+	logger.Info.Println("初始化成功")
 	sigCh := make(chan os.Signal, 1)
 	signal.Notify(sigCh, os.Interrupt, os.Kill)
 	<-sigCh
 
-	log.Println("正在关闭服务。。。")
+	logger.Info.Println("正在关闭服务。。。")
 	cancel()
 	waitForDone(cancelCh)
-	log.Println("已关闭服务")
+	logger.Info.Println("已关闭服务")
 }
 
 func worker(stopCtx context.Context, uc tgbotapi.UpdatesChannel, cancelCh chan int) {
@@ -77,7 +89,7 @@ func worker(stopCtx context.Context, uc tgbotapi.UpdatesChannel, cancelCh chan i
 func handle(update tgbotapi.Update) {
 	//debug
 	jsonlog, _ := json.Marshal(update)
-	log.Println("[update]" + string(jsonlog))
+	logger.Info.Println("[update]" + string(jsonlog))
 
 	if update.Message == nil && update.CallbackQuery == nil {
 		return

@@ -6,7 +6,7 @@ import (
 	"cosTgBot/util"
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"log"
+	"github.com/rroy233/logger"
 	"os"
 	"strconv"
 	"time"
@@ -41,7 +41,7 @@ func UploadCommand(message *tgbotapi.Message, path string) {
 	sMsg.ReplyToMessageID = message.MessageID
 	msg, err := bot.Send(sMsg)
 	if err != nil {
-		log.Println("[util][upload.UploadCommand]发送正在处理信息失败:", err)
+		logger.Info.Println("[util][upload.UploadCommand]发送正在处理信息失败:", err)
 		return
 	}
 
@@ -71,32 +71,32 @@ func UploadCommand(message *tgbotapi.Message, path string) {
 		util.EditMessageText(&msg, "文件不支持")
 		return
 	}
-	log.Println("[util][upload.UploadCommand]接受文件:", util.JsonEncode(file))
+	logger.Info.Println("[util][upload.UploadCommand]接受文件:", util.JsonEncode(file))
 
 	remoteFile, err := bot.GetFile(tgbotapi.FileConfig{
 		FileID: file.FileID,
 	})
 	if err != nil {
-		log.Println("[util][upload.UploadCommand]获取文件失败:", err)
+		logger.Info.Println("[util][upload.UploadCommand]获取文件失败:", err)
 		util.EditMessageText(&msg, "获取文件失败")
 		return
 	}
 	filePath, err := util.DownloadFile(remoteFile.Link(bot.Token))
 	if err != nil {
-		log.Println("[util][upload.UploadCommand]下载文件失败:", err)
+		logger.Info.Println("[util][upload.UploadCommand]下载文件失败:", err)
 		util.EditMessageText(&msg, "获取文件失败")
 		return
 	}
 	defer func() {
 		err = os.Remove(filePath)
 		if err != nil {
-			log.Println("[util][upload.UploadCommand]删除文件失败:", err)
+			logger.Info.Println("[util][upload.UploadCommand]删除文件失败:", err)
 		}
 	}()
 
 	objKey, err := servcie.CosUpload(filePath, file.SavePath, file.FileName)
 	if err != nil {
-		log.Println("[util][upload.UploadCommand]上传到cos失败:", err)
+		logger.Info.Println("[util][upload.UploadCommand]上传到cos失败:", err)
 		util.EditMessageText(&msg, "上传至cos失败")
 		return
 	}
