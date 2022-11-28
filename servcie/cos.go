@@ -6,6 +6,7 @@ import (
 	"github.com/rroy233/logger"
 	"github.com/tencentyun/cos-go-sdk-v5"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -52,5 +53,8 @@ func CosUpload(localAddr string, path string, fileName string) (ObjectKey string
 		return "", err
 	}
 	logger.Info.Printf("[COS]上传文件成功:%s->%s\n", localAddr, upRes.Key)
+	if strings.HasPrefix(upRes.Key, "/") == false {
+		return "/" + upRes.Key, err
+	}
 	return upRes.Key, err
 }

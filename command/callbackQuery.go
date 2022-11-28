@@ -58,12 +58,12 @@ func DelQuery(update *tgbotapi.Update) {
 }
 
 func uploadQuery(update *tgbotapi.Update, path string) {
-
-	UploadCommand(update.CallbackQuery.Message.ReplyToMessage, path)
-
+	
 	if err := util.CallBack(update.CallbackQuery.ID, "成功"); err != nil {
 		logger.Info.Println("[command][callbackQuery.uploadQuery]default发送CallBack失败", err)
 	}
+
+	UploadCommand(update.CallbackQuery.Message.ReplyToMessage, path)
 
 	return
 }
