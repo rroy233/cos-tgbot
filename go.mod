@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.5.1
-	github.com/rroy233/logger v1.0.3
+	github.com/rroy233/logger v1.0.4
 	github.com/tencentyun/cos-go-sdk-v5 v0.7.40
 )
 
