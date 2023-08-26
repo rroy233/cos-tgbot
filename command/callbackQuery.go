@@ -7,13 +7,14 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/rroy233/logger"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
 func DelQuery(update *tgbotapi.Update) {
 	text := update.CallbackQuery.Message.Text
 	objKey, err := util.MatchSingle(regexp.MustCompile(`ObjectKey:【(.+?)】`), text)
-	Key, err := util.MatchSingle(regexp.MustCompile(`\nKey:【(.+?)】\n`), text)
+	Key, err := util.MatchSingle(regexp.MustCompile(`\nKey:【(.+?)】`), text)
 	logger.Info.Printf("objKey:%s   Key:%s", objKey, Key)
 	if err != nil {
 		if err := util.CallBackWithAlert(update.CallbackQuery.ID, "objKey和Sign解析失败"); err != nil {
@@ -54,11 +55,24 @@ func DelQuery(update *tgbotapi.Update) {
 
 	util.EditMessageText(update.CallbackQuery.Message, "文件已删除")
 
+	//删除发送的二维码
+	qrCodeMsgInfo, err := util.MatchSingle(regexp.MustCompile(`Qrcode:【(.+?)】`), text)
+	qrCodeMsgIDs := strings.Split(qrCodeMsgInfo, ",")
+	if err == nil { //若有qrcode，则删除
+		for _, id := range qrCodeMsgIDs {
+			qrCodeMsgID, _ := strconv.Atoi(id)
+			_, err = bot.Request(tgbotapi.NewDeleteMessage(update.CallbackQuery.Message.Chat.ID, qrCodeMsgID))
+			if err != nil {
+				logger.Info.Println("[command][callbackQuery.DelQuery]删除二维码消息失败！", err)
+			}
+		}
+	}
+
 	return
 }
 
 func uploadQuery(update *tgbotapi.Update, path string) {
-	
+
 	if err := util.CallBack(update.CallbackQuery.ID, "成功"); err != nil {
 		logger.Info.Println("[command][callbackQuery.uploadQuery]default发送CallBack失败", err)
 	}

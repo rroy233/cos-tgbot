@@ -107,6 +107,21 @@ func EditMessageWithMarkUP(msg *tgbotapi.Message, newText string, keyboard *tgbo
 	return err
 }
 
+func SendPics(chatID int64, pics []interface{}, replyToMsgID int) ([]tgbotapi.Message, error) {
+	msg := tgbotapi.NewMediaGroup(chatID, pics)
+	msg.ReplyToMessageID = replyToMsgID
+
+	resp, err := bot.Request(msg)
+	var msgs []tgbotapi.Message
+
+	err = json.Unmarshal(resp.Result, &msgs)
+	if err != nil {
+		return []tgbotapi.Message{}, err
+	}
+
+	return msgs, err
+}
+
 func CallBack(callbackQueryID string, text string) error {
 	callback := tgbotapi.NewCallback(callbackQueryID, text)
 	//不能用bot.Send(callback)方法，有bug

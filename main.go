@@ -15,7 +15,7 @@ import (
 	"os/signal"
 )
 
-const WorkerNum = 1
+const WorkerNum = 5
 
 var bot *tgbotapi.BotAPI
 
@@ -37,6 +37,7 @@ func main() {
 			RequestUrl: config.Get().Logger.ReportUrl,
 			QueryKey:   config.Get().Logger.QueryKey,
 		},
+		NotUseJson: true,
 	})
 
 	var err error

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/rroy233/logger"
+	"github.com/skip2/go-qrcode"
 	"os"
 	"strconv"
 	"time"
@@ -111,19 +112,45 @@ func UploadCommand(message *tgbotapi.Message, path string) {
 		),
 	)
 	cdnUrl := ""
+	qrcodeNum := 1
 	if config.Get().Cos.CdnUrlDomain != "" {
 		cdnUrl = "\n下载地址(CDN):\n" + servcie.GetFileCdnUrl(objKey)
+		qrcodeNum = 2
 	}
+
+	//发送二维码
+	qrcodes := make([]interface{}, qrcodeNum)
+	qr1, _ := qrcode.Encode(servcie.GetFileUrl(objKey), qrcode.Medium, 256)
+	qrcodes[0] = tgbotapi.NewInputMediaPhoto(tgbotapi.FileBytes{Name: "normal.png", Bytes: qr1})
+	if config.Get().Cos.CdnUrlDomain != "" {
+		qr2, _ := qrcode.Encode(servcie.GetFileUrl(objKey), qrcode.Medium, 256)
+		qrcodes[1] = tgbotapi.NewInputMediaPhoto(tgbotapi.FileBytes{Name: "cdn.png", Bytes: qr2})
+	}
+	picMsgs, err := util.SendPics(msg.Chat.ID, qrcodes, msg.MessageID)
+	if err != nil {
+		logger.Error.Println("[util][upload.UploadCommand]发送二维码信息失败：", err)
+		return
+	}
+	picMsgIDText := ""
+	for _, m := range picMsgs {
+		if picMsgIDText != "" {
+			picMsgIDText += ","
+		}
+		picMsgIDText += fmt.Sprintf("%d", m.MessageID)
+	}
+
+	//编辑原消息
 	err = util.EditMessageWithMarkUP(&msg, fmt.Sprintf(
-		"【上传成功】\nObjectKey:【%s】 \nKey:【%s】\n下载地址：\n%s%s",
+		"【上传成功】\nObjectKey:【%s】 \nKey:【%s】\nQrcode:【%s】\n下载地址：\n%s%s",
 		objKey,
 		fmt.Sprintf("%d#%s", r, sign),
+		picMsgIDText,
 		servcie.GetFileUrl(objKey),
 		cdnUrl,
 	),
 		&keyboard)
 	if err != nil {
-		util.EditMessageText(&msg, "异常")
+		util.EditMessageText(&msg, "异常:"+err.Error())
 		return
 	}
 	return
